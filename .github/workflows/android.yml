@@ -17,6 +17,8 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-35 build-tools;35.0.0 platform-tools'
 
       - name: Make gradlew executable
         run: chmod +x gradlew
@@ -25,6 +27,8 @@ jobs:
         run: ./gradlew assembleDebug
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-android.outputs.ndk-path }}
+          ANDROID_HOME: ${{ steps.setup-android.outputs.android-sdk-path }}
+
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
