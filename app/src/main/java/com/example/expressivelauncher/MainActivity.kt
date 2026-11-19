@@ -134,6 +134,14 @@ class MainActivity : ComponentActivity(), HomeActions {
         var reopenSettings = false
     }
 
+    companion object {
+        init {
+            System.loadLibrary("expressive_launcher")
+        }
+    }
+
+    external fun stringFromRust(): String
+
     /** Язык применяем к контексту окна, а не меняем для всего процесса: так работает на всех версиях Android. */
     override fun attachBaseContext(base: Context) {
         val name = base.getSharedPreferences("settings", MODE_PRIVATE).getString("language", null)
