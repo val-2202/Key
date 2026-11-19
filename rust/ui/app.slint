@@ -1,0 +1,7 @@
+export component AppWindow inherits Window {
+    in-out property <string> text: "Hello from Rust + Slint!";
+    Text {
+        text: root.text;
+        horizontal-alignment: center;
+    }
+}
