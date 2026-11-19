@@ -82,6 +82,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity(), HomeActions {
+    companion object {
+        init {
+            System.loadLibrary("expressive_launcher")
+        }
+    }
+
+    external fun stringFromRust(): String
+
     private val vm: LauncherViewModel by viewModels()
 
     override var homePressSignal: Int by mutableIntStateOf(0)
