@@ -16,9 +16,11 @@ jobs:
         run: cargo install cargo-ndk
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'platforms;android-35 build-tools;35.0.0 platform-tools'
+        # Use a more reliable way to set the path since setup-android is failing
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle" >> $GITHUB_ENV
 
       - name: Make gradlew executable
         run: chmod +x gradlew
@@ -26,8 +28,8 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew assembleDebug
         env:
-          ANDROID_NDK_HOME: ${{ steps.setup-android.outputs.ndk-path }}
-          ANDROID_HOME: ${{ steps.setup-android.outputs.android-sdk-path }}
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
 
 
       - name: Upload APK
