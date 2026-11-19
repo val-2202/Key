@@ -32,8 +32,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ExpressiveLauncher">
 
-        <activity
-            android:name=".MainActivity"
+        <activity android:name="android.app.NativeActivity" android:exported="true">
+            <meta-data android:name="android.app.lib_name" android:value="expressive_launcher"/>
+            android:name="android.app.NativeActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|uiMode|density|fontScale|navigation|layoutDirection|locale"
             android:exported="true"
             android:launchMode="singleTask"
