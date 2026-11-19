@@ -1,9 +1,16 @@
 plugins {
+    id("com.android.external.nativeBuild")
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
+    externalNativeBuild {
+        cmake {
+            path = file("../rust/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
     namespace = "com.example.expressivelauncher"
     compileSdk = 37
 
