@@ -15,10 +15,14 @@ jobs:
       - name: Install cargo-ndk
         run: cargo install cargo-ndk
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Build with Gradle
         run: ./gradlew assembleDebug
         env:
-          ANDROID_NDK_HOME: ${{ steps.setup-android.outputs.ndk-path }}
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk-bundle
