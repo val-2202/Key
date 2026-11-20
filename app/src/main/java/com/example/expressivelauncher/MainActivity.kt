@@ -131,6 +131,19 @@ class MainActivity : ComponentActivity(), HomeActions {
     }
 
     external fun stringFromRust(): String
+
+    override fun attachBaseContext(base: Context) {
+        val name = base.getSharedPreferences("settings", MODE_PRIVATE).getString("language", null)
+        val tag = AppLanguage.entries.firstOrNull { it.name == name }?.tag
+        val locale = if (tag != null) Locale.forLanguageTag(tag) else android.content.res.Resources.getSystem().configuration.locales[0]
+        Locale.setDefault(locale)
+        super.attachBaseContext(
+            if (tag == null) base else base.createConfigurationContext(android.content.res.Configuration().apply { setLocale(locale) })
+        )
+    }
+
+    override fun setLanguage(language: AppLanguage) {
+        if (vm.settings.value.language == language) return
         vm.updateSettings { it.copy(language = language) }
         reopenSettings = true
         recreate()
