@@ -242,6 +242,7 @@ class MainActivity : ComponentActivity(), HomeActions {
         if (com.example.expressivelauncher.data.CrashLog.takeUnseen(this)) {
             com.example.expressivelauncher.ui.components.LauncherToast.show(getString(R.string.crash_restarted))
         }
+        com.example.expressivelauncher.ui.components.LauncherToast.show(stringFromRust())
         setContent {
             val raw by vm.settings.collectAsState()
             // Тема перекрывает то, что противоречит её характеру; весь интерфейс читает уже итоговые настройки
