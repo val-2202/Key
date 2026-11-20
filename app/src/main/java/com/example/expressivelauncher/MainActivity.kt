@@ -82,6 +82,44 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity(), HomeActions {
+    private val vm: LauncherViewModel by viewModels()
+
+    override var homePressSignal: Int by mutableIntStateOf(0)
+    override var homeFromForeground: Boolean = false
+    private val haptics by lazy { com.example.expressivelauncher.ui.components.Haptics(this) { vm.settings.value } }
+    override var wakeSignal: Int by mutableIntStateOf(0)
+    override var resumeSignal: Int by mutableIntStateOf(0)
+    override var resumeHook: (() -> Unit)? = null
+    override var defaultHomeSignal: Int by mutableIntStateOf(0)
+    override var isPaused: Boolean = false
+    override var pauseCount: Int = 0
+    override var hiddenSignal: Int by mutableIntStateOf(0)
+    private var wallpaperLight by mutableStateOf(false)
+    private var darkTheme = false
+    private var accentSheet = false
+    private var overSurface = false
+    private var pendingIconApp: AppInfo? = null
+    private var colorsListener: WallpaperManager.OnColorsChangedListener? = null
+    private var showSettings by mutableStateOf(false)
+    /** Системная настройка «Убрать анимации» выключена; перечитывается при возвращении в лаунчер. */
+    private var animatorsOn by mutableStateOf(android.animation.ValueAnimator.areAnimatorsEnabled())
+    /** Размытие обоев за окном: его просят стол (меню приложений, папка) и стеклянные настройки/онбординг. */
+    private var homeBlurDp by mutableIntStateOf(0)
+    private var overlayBlurDp by mutableIntStateOf(0)
+    /** Размыт ли фон за окном сейчас: так же размываются и свои обои лаунчера, которые лежат в самом окне. */
+    private var behindBlurred by mutableStateOf(false)
+    /** Размыт ли фон под меню приложений (его просит стол). */
+    private var drawerBlurred by mutableStateOf(false)
+    /** Яркость своих обоев лаунчера, если они включены и загружены; null — решают системные обои. */
+    private var customWallpaperLight: Boolean? = null
+    private var pendingWidget: PendingWidget? = null
+    private var powerSave by mutableStateOf(false)
+    override var crossWindowBlur: Boolean by mutableStateOf(false)
+    private val blurListener = java.util.function.Consumer<Boolean> { crossWindowBlur = it }
+    private val powerReceiver = object : BroadcastReceiver() {
+        override fun onReceive(c: Context?, i: Intent?) { readPowerSave() }
+    }
+
     private companion object {
         const val REQ_CONFIGURE = 4711
         /** Смена языка пересоздаёт окно; пользователь должен остаться в настройках. */
@@ -93,20 +131,6 @@ class MainActivity : ComponentActivity(), HomeActions {
     }
 
     external fun stringFromRust(): String
-
-    /** Язык применяем к контексту окна, а не меняем для всего процесса: так работает на всех версиях Android. */
-    override fun attachBaseContext(base: Context) {
-        val name = base.getSharedPreferences("settings", MODE_PRIVATE).getString("language", null)
-        val tag = AppLanguage.entries.firstOrNull { it.name == name }?.tag
-        val locale = if (tag != null) Locale.forLanguageTag(tag) else android.content.res.Resources.getSystem().configuration.locales[0]
-        Locale.setDefault(locale)
-        super.attachBaseContext(
-            if (tag == null) base else base.createConfigurationContext(android.content.res.Configuration().apply { setLocale(locale) })
-        )
-    }
-
-    override fun setLanguage(language: AppLanguage) {
-        if (vm.settings.value.language == language) return
         vm.updateSettings { it.copy(language = language) }
         reopenSettings = true
         recreate()
